@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .custom-slider {
+            -webkit-appearance: none;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #6366f1;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s ease;
+        }
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        .checkbox-wrapper {
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+        }
+        .checkbox-wrapper input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #edf2f7;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .checkbox-wrapper:hover input ~ .checkmark {
+            background-color: #e2e8f0;
+        }
+        .checkbox-wrapper input:checked ~ .checkmark {
+            background-color: #6366f1;
+        }
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        .checkbox-wrapper input:checked ~ .checkmark:after {
+            display: block;
+        }
+        .checkbox-wrapper .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 7px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+        .button-hover {
+            transition: all 0.3s ease;
+        }
+        .button-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div class="max-w-xl mx-auto">
+        <div class="glassmorphism rounded-2xl shadow-xl p-8 space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Password Generator
+                </h1>
+                <p class="text-gray-500 mt-2">Create strong and secure passwords</p>
+            </div>
+            <!-- Password Display -->
+            <div class="relative">
+                <div class="flex items-center bg-gray-50 rounded-xl p-4 shadow-inner">
+                    <input type="text" id="passwordOutput" 
+                        class="w-full bg-transparent text-gray-800 text-xl font-mono outline-none" 
+                        readonly>
+                    <button id="copyBtn" class="ml-3 text-gray-500 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-copy text-xl"></i>
+                    </button>
+                </div>
+                <div id="copyTooltip" class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded-lg text-sm opacity-0 transition-opacity duration-300">
+                    Copied!
+                </div>
+            </div>
+            <!-- Strength Indicator -->
+            <div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-600">Password Strength</span>
+                    <span id="strengthText" class="font-semibold text-indigo-600">Weak</span>
+                </div>
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="strengthIndicator" class="h-full bg-red-500 transition-all duration-300"></div>
+                </div>
+            </div>
+            <!-- Length Control -->
+            <div>
+                <div class="flex justify-between mb-3">
+                    <label class="text-gray-700 font-medium">Password Length</label>
+                    <span id="lengthValue" class="text-indigo-600 font-semibold">12</span>
+                </div>
+                <input type="range" id="lengthSlider" min="8" max="32" value="12" 
+                    class="custom-slider w-full">
+            </div>
+            <!-- Options -->
+            <div class="grid grid-cols-2 gap-4">
+                <label class="checkbox-wrapper text-gray-700">
+                    Uppercase
+                    <input type="checkbox" id="uppercase" checked>
+                    <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-wrapper text-gray-700">
+                    Lowercase
+                    <input type="checkbox" id="lowercase" checked>
+                    <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-wrapper text-gray-700">
+                    Numbers
+                    <input type="checkbox" id="numbers" checked>
+                    <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-wrapper text-gray-700">
+                    Symbols
+                    <input type="checkbox" id="symbols" checked>
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <!-- Action Buttons -->
+            <div class="flex space-x-4">
+                <button id="generateBtn" 
+                    class="flex-1 button-hover bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+                    Generate Password
+                </button>
+                <button id="resetBtn" 
+                    class="button-hover bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const passwordOutput = document.getElementById('passwordOutput');
+        const lengthSlider = document.getElementById('lengthSlider');
+        const lengthValue = document.getElementById('lengthValue');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const copyTooltip = document.getElementById('copyTooltip');
+        const strengthIndicator = document.getElementById('strengthIndicator');
+        const strengthText = document.getElementById('strengthText');
+
+        // Character sets
+        const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+        const numberChars = '0123456789';
+        const symbolChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        // Update length value display
+        lengthSlider.addEventListener('input', () => {
+            lengthValue.textContent = lengthSlider.value;
+        });
+
+        // Generate password
+        function generatePassword() {
+            let chars = '';
+            let password = '';
+            
+            if (document.getElementById('uppercase').checked) chars += upperChars;
+            if (document.getElementById('lowercase').checked) chars += lowerChars;
+            if (document.getElementById('numbers').checked) chars += numberChars;
+            if (document.getElementById('symbols').checked) chars += symbolChars;
+
+            if (chars === '') {
+                alert('Please select at least one character type');
+                return;
+            }
+
+            const length = parseInt(lengthSlider.value);
+            
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            passwordOutput.value = password;
+            updateStrengthIndicator(password);
+        }
+
+        // Update strength indicator
+        function updateStrengthIndicator(password) {
+            let strength = 0;
+            
+            if (password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[a-z]/)) strength += 25;
+            if (password.match(/[0-9]/)) strength += 25;
+            if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+
+            strengthIndicator.style.width = `${strength}%`;
+            
+            if (strength <= 25) {
+                strengthIndicator.className = 'password-strength-indicator bg-red-500 rounded-full';
+                strengthText.textContent = 'Weak';
+            } else if (strength <= 50) {
+                strengthIndicator.className = 'password-strength-indicator bg-yellow-500 rounded-full';
+                strengthText.textContent = 'Fair';
+            } else if (strength <= 75) {
+                strengthIndicator.className = 'password-strength-indicator bg-blue-500 rounded-full';
+                strengthText.textContent = 'Good';
+            } else {
+                strengthIndicator.className = 'password-strength-indicator bg-green-500 rounded-full';
+                strengthText.textContent = 'Strong';
+            }
+        }
+
+        // Copy password
+        function copyPassword() {
+            if (!passwordOutput.value) return;
+            
+            navigator.clipboard.writeText(passwordOutput.value);
+            copyTooltip.classList.add('show');
+            setTimeout(() => copyTooltip.classList.remove('show'), 2000);
+        }
+
+        // Reset
+        function reset() {
+            passwordOutput.value = '';
+            lengthSlider.value = 12;
+            lengthValue.textContent = '12';
+            document.getElementById('uppercase').checked = true;
+            document.getElementById('lowercase').checked = true;
+            document.getElementById('numbers').checked = true;
+            document.getElementById('symbols').checked = true;
+            strengthIndicator.style.width = '25%';
+            strengthIndicator.className = 'password-strength-indicator bg-red-500 rounded-full';
+            strengthText.textContent = 'Weak';
+        }
+
+        // Event listeners
+        generateBtn.addEventListener('click', generatePassword);
+        copyBtn.addEventListener('click', copyPassword);
+        resetBtn.addEventListener('click', reset);
+
+        // Generate initial password
+        generatePassword();
+    </script>
+</body>
+</html>
+
