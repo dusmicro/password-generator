@@ -1,392 +1,68 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strong Password Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-        }
-        
-        .password-container {
-            background: linear-gradient(145deg, #131c31, #1e293b);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-generate {
-            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-generate:hover {
-            background: linear-gradient(90deg, #4338ca, #7c3aed);
-            transform: translateY(-2px);
-        }
-        
-        .btn-copy, .btn-reset {
-            transition: all 0.3s ease;
-        }
-        
-        .btn-copy:hover, .btn-reset:hover {
-            transform: translateY(-2px);
-        }
-        
-        .slider {
-            -webkit-appearance: none;
-            height: 8px;
-            background: #2d3748;
-            border-radius: 10px;
-            outline: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #8b5cf6;
-            cursor: pointer;
-            border: 2px solid #1e293b;
-        }
-        
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #8b5cf6;
-            cursor: pointer;
-            border: 2px solid #1e293b;
-        }
-        
-        .password-strength-indicator {
-            height: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        .copy-indicator {
-            animation: pulse 1s ease-in-out infinite;
-        }
-        
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        
-        .custom-checkbox {
-            -webkit-appearance: none;
-            appearance: none;
-            background-color: #2d3748;
-            border: 2px solid #4b5563;
-            border-radius: 0.25rem;
-            width: 1.25rem;
-            height: 1.25rem;
-            display: inline-block;
-            position: relative;
-            margin-right: 0.75rem;
-            cursor: pointer;
-            vertical-align: middle;
-        }
-        
-        .custom-checkbox:checked {
-            background-color: #8b5cf6;
-            border-color: #8b5cf6;
-        }
-        
-        .custom-checkbox:checked::after {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 2px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <div class="password-container rounded-xl p-6 mb-4">
-            <h1 class="text-2xl font-bold text-center mb-6">Strong Password Generator</h1>
-            
-            <!-- Password Display Area -->
-            <div class="bg-gray-800 rounded-lg p-4 mb-5 flex items-center justify-between">
-                <div id="passwordDisplay" class="text-xl font-mono text-gray-200 truncate">Generate a password</div>
-                <button id="copyBtn" class="btn-copy ml-2 p-2 rounded-md bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                </button>
-            </div>
-            
-            <div id="copyIndicator" class="hidden mb-4 text-center text-sm font-medium text-green-400 copy-indicator">Password copied to clipboard!</div>
-            
-            <!-- Password Strength Indicator -->
-            <div class="mb-4">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm text-gray-400">Password Strength</span>
-                    <span id="strengthLabel" class="text-sm font-medium text-gray-400">Generate a password</span>
-                </div>
-                <div class="w-full bg-gray-800 rounded-full h-1.5 mb-4">
-                    <div id="strengthIndicator" class="password-strength-indicator rounded-full w-0 bg-red-500"></div>
-                </div>
-            </div>
-            
-            <!-- Password Length Slider -->
-            <div class="mb-5">
-                <div class="flex justify-between mb-2">
-                    <label for="lengthSlider" class="text-sm font-medium text-gray-400">Password Length</label>
-                    <span id="lengthValue" class="text-sm font-medium text-purple-400">12</span>
-                </div>
-                <input type="range" min="8" max="32" value="12" class="slider w-full" id="lengthSlider">
-                <div class="flex justify-between mt-1">
-                    <span class="text-xs text-gray-500">8</span>
-                    <span class="text-xs text-gray-500">32</span>
-                </div>
-            </div>
-            
-            <!-- Password Options -->
-            <div class="mb-6">
-                <h2 class="text-sm font-medium text-gray-400 mb-3">Password Settings</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="includeUppercase" class="custom-checkbox" checked>
-                        <label for="includeUppercase" class="text-sm">Uppercase (A-Z)</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="includeLowercase" class="custom-checkbox" checked>
-                        <label for="includeLowercase" class="text-sm">Lowercase (a-z)</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="includeNumbers" class="custom-checkbox" checked>
-                        <label for="includeNumbers" class="text-sm">Numbers (0-9)</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="includeSymbols" class="custom-checkbox" checked>
-                        <label for="includeSymbols" class="text-sm">Symbols (!@#$%)</label>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Buttons -->
-            <div class="flex space-x-4">
-                <button id="generateBtn" class="btn-generate flex-1 py-3 px-4 rounded-lg text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
-                    Generate Password
-                </button>
-                <button id="resetBtn" class="btn-reset py-3 px-4 rounded-lg bg-gray-700 text-white font-medium hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-50">
-                    Reset
-                </button>
-            </div>
-        </div>
-        
-        <p class="text-center text-gray-500 text-xs">
-            Securely generate strong passwords to protect your online accounts
-        </p>
+<body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
+  <div class="bg-[#111] w-full max-w-md p-8 rounded-2xl shadow-xl border border-gray-800">
+    <h1 class="text-3xl font-bold text-center mb-6 tracking-wide text-white">🔒 Password Generator</h1>
+
+    <div class="mb-5">
+      <label for="length" class="block text-sm mb-2 text-gray-300">Password Length</label>
+      <input id="length" type="number" min="4" max="64" value="16"
+             class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-blue-600 outline-none transition duration-200" />
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const passwordDisplay = document.getElementById('passwordDisplay');
-            const lengthSlider = document.getElementById('lengthSlider');
-            const lengthValue = document.getElementById('lengthValue');
-            const generateBtn = document.getElementById('generateBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const includeUppercase = document.getElementById('includeUppercase');
-            const includeLowercase = document.getElementById('includeLowercase');
-            const includeNumbers = document.getElementById('includeNumbers');
-            const includeSymbols = document.getElementById('includeSymbols');
-            const strengthIndicator = document.getElementById('strengthIndicator');
-            const strengthLabel = document.getElementById('strengthLabel');
-            const copyIndicator = document.getElementById('copyIndicator');
-            
-            // Character sets
-            const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
-            const numberChars = '0123456789';
-            const symbolChars = '!@#$%^&*()_+~`|}{[]:;?><,./-=';
-            
-            // Update length value when slider changes
-            lengthSlider.addEventListener('input', function() {
-                lengthValue.textContent = this.value;
-            });
-            
-            // Generate password
-            generateBtn.addEventListener('click', generatePassword);
-            
-            // Copy password to clipboard
-            copyBtn.addEventListener('click', copyToClipboard);
-            
-            // Reset functionality
-            resetBtn.addEventListener('click', resetGenerator);
-            
-            function generatePassword() {
-                // Check if at least one option is selected
-                if (!includeUppercase.checked && !includeLowercase.checked && 
-                    !includeNumbers.checked && !includeSymbols.checked) {
-                    passwordDisplay.textContent = 'Select at least one option';
-                    strengthIndicator.style.width = '0';
-                    strengthLabel.textContent = 'N/A';
-                    return;
-                }
-                
-                // Build character set based on options
-                let chars = '';
-                if (includeUppercase.checked) chars += uppercaseChars;
-                if (includeLowercase.checked) chars += lowercaseChars;
-                if (includeNumbers.checked) chars += numberChars;
-                if (includeSymbols.checked) chars += symbolChars;
-                
-                const length = lengthSlider.value;
-                let password = '';
-                
-                // Ensure at least one character from each selected option
-                if (includeUppercase.checked) {
-                    password += uppercaseChars.charAt(Math.floor(Math.random() * uppercaseChars.length));
-                }
-                if (includeLowercase.checked) {
-                    password += lowercaseChars.charAt(Math.floor(Math.random() * lowercaseChars.length));
-                }
-                if (includeNumbers.checked) {
-                    password += numberChars.charAt(Math.floor(Math.random() * numberChars.length));
-                }
-                if (includeSymbols.checked) {
-                    password += symbolChars.charAt(Math.floor(Math.random() * symbolChars.length));
-                }
-                
-                // Fill the rest of the password
-                for (let i = password.length; i < length; i++) {
-                    const randomIndex = Math.floor(Math.random() * chars.length);
-                    password += chars.charAt(randomIndex);
-                }
-                
-                // Shuffle the password to randomize character positions
-                password = shuffleString(password);
-                
-                // Display the password
-                passwordDisplay.textContent = password;
-                
-                // Update strength indicator
-                updateStrengthIndicator(password);
-            }
-            
-            function shuffleString(string) {
-                const array = string.split('');
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array.join('');
-            }
-            
-            function updateStrengthIndicator(password) {
-                // Calculate password strength
-                let strength = 0;
-                
-                // Length contribution
-                if (password.length >= 8) strength += 1;
-                if (password.length >= 12) strength += 1;
-                if (password.length >= 16) strength += 1;
-                
-                // Character variety contribution
-                if (/[A-Z]/.test(password)) strength += 1;
-                if (/[a-z]/.test(password)) strength += 1;
-                if (/[0-9]/.test(password)) strength += 1;
-                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-                
-                // Set the indicator
-                let percentage, color, label;
-                
-                if (strength <= 3) {
-                    percentage = '25%';
-                    color = '#ef4444'; // red
-                    label = 'Weak';
-                } else if (strength <= 5) {
-                    percentage = '50%';
-                    color = '#f59e0b'; // amber
-                    label = 'Medium';
-                } else if (strength <= 7) {
-                    percentage = '75%';
-                    color = '#10b981'; // emerald
-                    label = 'Strong';
-                } else {
-                    percentage = '100%';
-                    color = '#6366f1'; // indigo
-                    label = 'Very Strong';
-                }
-                
-                strengthIndicator.style.width = percentage;
-                strengthIndicator.style.backgroundColor = color;
-                strengthLabel.textContent = label;
-                strengthLabel.style.color = color;
-            }
-            
-            function copyToClipboard() {
-                if (passwordDisplay.textContent === 'Generate a password' || 
-                    passwordDisplay.textContent === 'Select at least one option') {
-                    return;
-                }
-                
-               // Create a temporary textarea element to copy from
-                const textarea = document.createElement('textarea');
-                textarea.value = passwordDisplay.textContent;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                
-                // Show copy indicator
-                copyIndicator.classList.remove('hidden');
-                setTimeout(() => {
-                    copyIndicator.classList.add('hidden');
-                }, 2000);
-            }
-            
-            function resetGenerator() {
-                // Reset password display
-                passwordDisplay.textContent = 'Generate a password';
-                
-                // Reset slider to default value
-                lengthSlider.value = 12;
-                lengthValue.textContent = '12';
-                
-                // Reset checkboxes to checked
-                includeUppercase.checked = true;
-                includeLowercase.checked = true;
-                includeNumbers.checked = true;
-                includeSymbols.checked = true;
-                
-                // Reset strength indicator
-                strengthIndicator.style.width = '0';
-                strengthLabel.textContent = 'Generate a password';
-                strengthLabel.style.color = '';
-                
-                // Hide copy indicator if visible
-                copyIndicator.classList.add('hidden');
-            }
-            
-            // Generate a password on page load
-            generatePassword();
-        });
-    </script>
+
+    <div class="mb-5">
+      <label class="block text-sm mb-2 text-gray-300">Generated Password</label>
+      <div class="relative">
+        <input id="password" type="text" readonly
+               class="w-full px-4 py-2 pr-16 rounded-lg bg-gray-900 text-white border border-gray-700 outline-none" />
+        <button onclick="copyPassword()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-md transition duration-150">
+          Copy
+        </button>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <button onclick="generatePassword()"
+              class="w-full py-2 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition duration-150">
+        Generate
+      </button>
+      <button onclick="resetForm()"
+              class="w-full py-2 bg-red-600 hover:bg-red-500 rounded-lg font-semibold transition duration-150">
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function generatePassword() {
+      const length = parseInt(document.getElementById('length').value);
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      document.getElementById('password').value = password;
+    }
+
+    function copyPassword() {
+      const password = document.getElementById('password').value;
+      if (!password) return alert("Please generate a password first.");
+      navigator.clipboard.writeText(password)
+        .then(() => alert("Password copied to clipboard!"))
+        .catch(() => alert("Failed to copy password."));
+    }
+
+    function resetForm() {
+      document.getElementById('length').value = 16;
+      document.getElementById('password').value = "";
+    }
+  </script>
 </body>
 </html>
-
-
